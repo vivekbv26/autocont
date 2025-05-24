@@ -4,7 +4,7 @@ from utils import get_env_var
 import time
 
 
-def generate(input_path="output/output.mp3"):
+def generate(input_path="output/output1.mp3"):
     HEYGEN_API_KEY = get_env_var("HEYGEN_API_KEY")
     url = "https://upload.heygen.com/v1/asset"
 
@@ -19,7 +19,7 @@ def generate(input_path="output/output.mp3"):
         response = requests.post(url, headers=headers, data=file)
     print(response.status_code)
     print(response.json().get("data")['id'])
-    generate_video(response.json().get("data")['id'], title="Test Video", dimension="16:9")
+    return generate_video(response.json().get("data")['id'], title="Test Video", dimension="16:9")
 
 
 def generate_video(audio_asset_id,title="try",dimension="16:9"):
@@ -41,7 +41,7 @@ def generate_video(audio_asset_id,title="try",dimension="16:9"):
             {
                 "character": {
                     "type": "avatar",
-                    "avatar_id":"Brandon_Office_Sitting_Front_public",
+                    "avatar_id":"Conrad_sitting_sofa_front",
                     "scale": 1.0,
                     "avatar_style": "normal",
                     "offset": {
@@ -63,8 +63,9 @@ def generate_video(audio_asset_id,title="try",dimension="16:9"):
     response=requests.post(url,headers=headers,data=json.dumps(payload))
     if response.status_code==200:
         result = response.json()
-        print(f"Video request successful. Video ID: {result.get('video_id')}")
-        return result
+        print(result)
+        print(f"Video request successful. Video ID: {result.get('data')['video_id']}")
+        return (result.get('data')['video_id'])
     else:
         print("Error creating video:", response.status_code, response.text)
         return None
@@ -72,7 +73,7 @@ def generate_video(audio_asset_id,title="try",dimension="16:9"):
 def main():
     HEYGEN_API_KEY = get_env_var("HEYGEN_API_KEY")
     video_id = generate(input_path="output/output.mp3")
-
+    print("Video ID:", video_id)
     if not video_id:
         print("Video ID not returned.")
         return
@@ -84,15 +85,15 @@ def main():
     }
     response = requests.get(url, headers=headers)
     result = response.json()
-    status = result.get("status")
+    status = result.get("data")['status']
     while (status != "completed" and status != "failed"):
         response = requests.get(url, headers=headers)
         result = response.json()
-        status = result.get("status")
-        print("Video status:", status)
 
+        status = result.get("data")["status"]
+        print("Current status:", status)
         if status == "completed":
-            print("Video URL:", result.get("video_url"))
+            print("Video URL:", result.get("data")['video_url'])
             break
         elif status == "failed":
             print("Video generation failed.")
