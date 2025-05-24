@@ -7,7 +7,6 @@ import time
 def generate(input_path="output/output.mp3"):
     HEYGEN_API_KEY = get_env_var("HEYGEN_API_KEY")
     url = "https://upload.heygen.com/v1/asset"
-    print(f"Using API key: {HEYGEN_API_KEY}")
 
     headers = {
         "Content-Type": "audio/mpeg",
@@ -19,7 +18,8 @@ def generate(input_path="output/output.mp3"):
     with open(file_path, "rb") as file:
         response = requests.post(url, headers=headers, data=file)
     print(response.status_code)
-    generate_video(response.json().get("id"), title="Test Video", dimension="16:9")
+    print(response.json().get("data")['id'])
+    generate_video(response.json().get("data")['id'], title="Test Video", dimension="16:9")
 
 
 def generate_video(audio_asset_id,title="try",dimension="16:9"):
@@ -32,7 +32,7 @@ def generate_video(audio_asset_id,title="try",dimension="16:9"):
     }
     payload = {
         "title": title,
-        "caption": "This is a test video",
+        "caption": False,
          "dimension": {
             "width": 1280,
             "height": 720
@@ -41,7 +41,7 @@ def generate_video(audio_asset_id,title="try",dimension="16:9"):
             {
                 "character": {
                     "type": "avatar",
-                    "avatar_id":"Abigail_sitting_sofa_front",
+                    "avatar_id":"Brandon_Office_Sitting_Front_public",
                     "scale": 1.0,
                     "avatar_style": "normal",
                     "offset": {
@@ -82,8 +82,10 @@ def main():
         "accept": "application/json",
         "x-api-key": HEYGEN_API_KEY
     }
-
-    while True:
+    response = requests.get(url, headers=headers)
+    result = response.json()
+    status = result.get("status")
+    while (status != "completed" and status != "failed"):
         response = requests.get(url, headers=headers)
         result = response.json()
         status = result.get("status")
