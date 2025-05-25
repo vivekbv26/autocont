@@ -9,7 +9,7 @@ key=get_env_var("SUPABASE_KEY")
 
 supabase:Client=create_client(url, key)
 
-NEWSAPI_KEY = "237aff498fb34f5dae680055da54fdb8"  
+NEWSAPI_KEY = get_env_var("NEWS_API_KEY")
 API_URL = "https://newsapi.org/v2/everything"
 
 KEYWORDS = [
@@ -37,7 +37,6 @@ def fetch_full_articles(api_key, keywords):
 
         response = requests.get(API_URL, params=params)
         data = response.json()
-
         if data.get("status") == "ok" and data.get("articles"):
             for article_meta in data["articles"]:
                 url = article_meta.get("url")
@@ -47,7 +46,15 @@ def fetch_full_articles(api_key, keywords):
                         article.download()
                         article.parse()
                         print(f"URL: {url}\n")
-                        response = (supabase.table("storeart").insert({"url": url}).execute())
+                        # Check if the URL already exists
+                        existing = supabase.table("storeart").select("num").eq("url", url).execute()
+
+                        if not existing.data:
+                            # Only insert if the URL doesn't already exist
+                            response = supabase.table("storeart").insert({"url": url}).execute()
+                        else:
+                            print("URL already exists. Skipping insert.")
+
                     except Exception as e:
                         print(f"Failed to fetch full article from {url}: {e}")
         else:
