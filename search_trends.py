@@ -9,7 +9,7 @@ key=get_env_var("SUPABASE_KEY")
 
 supabase:Client=create_client(url, key)
 
-NEWSAPI_KEY = "237aff498fb34f5dae680055da54fdb8"  
+NEWSAPI_KEY = "c08234f30d1a44688fe35da312f13e73"  
 API_URL = "https://newsapi.org/v2/everything"
 
 KEYWORDS = [
