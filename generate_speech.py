@@ -2,6 +2,7 @@ import os
 from utils import get_env_var
 from elevenlabs.client import ElevenLabs
 from elevenlabs import play
+from summarise_feed import give_text
 
 def generate_speech(text, voice_id,output_path="output/output1.mp3"):
     ELEVENLABS_API_KEY = get_env_var("ELEVENLABS_API_KEY")
@@ -21,6 +22,6 @@ def generate_speech(text, voice_id,output_path="output/output1.mp3"):
     with open(output_path, "wb") as f:
         f.write(audio_bytes)
 def main():
-    generate_speech(text="Former President Donald Trump delivered a politically charged commencement address to the West Point Class of 2025, criticizing military diversity initiatives and touting his administration's defense policies. He emphasized the rollback of DEI programs and political training, highlighting his efforts to strengthen the military.  ", voice_id="JBFqnCBsd6RMkjVDRZzb")
+    generate_speech(text=give_text(), voice_id="JBFqnCBsd6RMkjVDRZzb")
 if __name__ == "__main__":
     main()
