@@ -1,26 +1,25 @@
-# Add this line at the beginning of your notebook or before importing newspaper
-#!pip install lxml_html_clean
-# The rest of your code follows
 import requests
-import re
-import random
 from datetime import datetime, timedelta, timezone
 from newspaper import Article
+from supabase import create_client, Client
+from utils import get_env_var
 
-# ─── CONFIGURATION ───────────────────────────────────────────────
-NEWSAPI_KEY = "237aff498fb34f5dae680055da54fdb8"  # Replace with your actual NewsAPI key
+url=get_env_var("SUPABASE_URL")
+key=get_env_var("SUPABASE_KEY")
+
+supabase:Client=create_client(url, key)
+
+NEWSAPI_KEY = "237aff498fb34f5dae680055da54fdb8"  
 API_URL = "https://newsapi.org/v2/everything"
 
-# ─── THEMATIC KEYWORDS ───────────────────────────────────────────
 KEYWORDS = [
-    "sexual intercoarse", "cybercrime", "conspiracy", "unsolved mystery", "cult",
+    "cybercrime", "conspiracy", "unsolved mystery", "cult",
     "espionage", "paranormal", "forbidden", "secret society", "ritual",
     "black market", "scandal", "hidden truth", "classified", "covert operation",
     "did you know", "bizarre", "unbelievable", "shocking", "unexplained"
 ]
 
-# ─── FUNCTION TO FETCH AND DISPLAY ARTICLES ──────────────────────
-def fetch_full_articles(api_key, keywords, num_articles=3):
+def fetch_full_articles(api_key, keywords):
     to_date = datetime.now(timezone.utc)
     from_date = to_date - timedelta(days=7)
 
@@ -32,7 +31,7 @@ def fetch_full_articles(api_key, keywords, num_articles=3):
             "to": to_date.strftime("%Y-%m-%d"),
             "language": "en",
             "sortBy": "publishedAt",
-            "pageSize": num_articles,
+            "pageSize": 2,
             "apiKey": api_key
         }
 
@@ -47,19 +46,17 @@ def fetch_full_articles(api_key, keywords, num_articles=3):
                         article = Article(url)
                         article.download()
                         article.parse()
-                        print(f"\nTitle: {article.title}")
-                        print(f"Source: {article_meta.get('source', {}).get('name', 'N/A')}")
-                        print(f"Published At: {article_meta.get('publishedAt', 'N/A')}")
                         print(f"URL: {url}\n")
-                        print(f"Full Article:\n{article.text}\n")
+                        response = (supabase.table("storeart").insert({"url": url}).execute())
                     except Exception as e:
                         print(f"Failed to fetch full article from {url}: {e}")
         else:
             print(f"No articles found for keyword: {keyword}")
 
-# ─── MAIN EXECUTION ──────────────────────────────────────────────
 if __name__ == "__main__":
     try:
         fetch_full_articles(NEWSAPI_KEY, KEYWORDS)
+        response=(supabase.table("storeart").select("*").execute())
+        print(response.data)
     except Exception as e:
         print(f"Error: {e}")
