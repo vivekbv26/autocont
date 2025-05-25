@@ -28,7 +28,7 @@ def generate_video_text(text,title="try",dimension="16:9"):
                     "avatar_style": "normal",
                     "offset": {
                         "x": 0.0,
-                        "y": 0.3,
+                        "y": 0.0,
                     }
                 },
                 "voice": {
