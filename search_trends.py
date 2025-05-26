@@ -51,7 +51,7 @@ def fetch_full_articles(api_key, keywords):
 
                         if not existing.data:
                             # Only insert if the URL doesn't already exist
-                            response = supabase.table("storeart").insert({"url": url}).execute()
+                            response = supabase.table("storeart").insert({"url": url},{"caregory":keyword}).execute()
                         else:
                             print("URL already exists. Skipping insert.")
 
