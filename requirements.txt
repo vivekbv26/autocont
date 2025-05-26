@@ -7,7 +7,6 @@ google-auth
 google-auth-oauthlib
 google-auth-httplib2
 google-api-python-client
-
 # OpenAI Whisper for speech recognition
 openai-whisper
 
@@ -30,7 +29,7 @@ elevenlabs
 langchain
 langchain-core
 langchain-community
-
+langchain-google-genai
 # Additional utilities that might be needed
 Pillow
 numpy
