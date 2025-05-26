@@ -1,0 +1,37 @@
+# Core Python packages
+requests
+python-dotenv
+
+# Google APIs and Authentication
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+
+# OpenAI Whisper for speech recognition
+openai-whisper
+
+# Redis for caching
+redis
+
+# Supabase client
+supabase
+
+# Video processing
+moviepy
+
+# Web scraping and article extraction
+newspaper3k
+
+# ElevenLabs for text-to-speech
+elevenlabs
+
+# LangChain for AI/ML workflows
+langchain
+langchain-core
+langchain-community
+
+# Additional utilities that might be needed
+Pillow
+numpy
+ffmpeg-python
