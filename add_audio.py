@@ -16,7 +16,7 @@ REDIS_CONFIG = {
     "password": "MaMdTtfUFDj2vtOMjwD4IK3F2lae4oUP",
 }
 REDIS_KEY = "seg"
-def download_to_temp(url="https://upiovzpgwwdzgqofnyvp.supabase.co/storage/v1/object/sign/background/output1.mp3?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2RiOTY3YWFiLTM1ZDUtNGIxNC1iNDUyLTg1OTgwMjI3NTg3NiJ9.eyJ1cmwiOiJiYWNrZ3JvdW5kL291dHB1dDEubXAzIiwiaWF0IjoxNzQ4MjUwNTQ2LCJleHAiOjE3NDg4NTUzNDZ9.yhsvBLIfpwAs6S5bGP1BFVek7DQ0XfcsOlLTZibad3w"):
+def download_to_temp(url):
     response = requests.get(url)
     response.raise_for_status()
 
@@ -42,8 +42,6 @@ def merge_audio_video(video_path, audio_path, output_path="merged_output.mp4"):
         output_path
     ]
     subprocess.run(command, check=True)
-
-# merge_audio_video("https://upiovzpgwwdzgqofnyvp.supabase.co/storage/v1/object/sign/background/output_1.mp4?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2RiOTY3YWFiLTM1ZDUtNGIxNC1iNDUyLTg1OTgwMjI3NTg3NiJ9.eyJ1cmwiOiJiYWNrZ3JvdW5kL291dHB1dF8xLm1wNCIsImlhdCI6MTc0ODI1MDUzMywiZXhwIjoxNzQ4ODU1MzMzfQ.zGw-1tiyi-E26Ic8wPODOJO51HN1N7ZKVaFZQAD7DCk", "https://upiovzpgwwdzgqofnyvp.supabase.co/storage/v1/object/sign/background/output1.mp3?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2RiOTY3YWFiLTM1ZDUtNGIxNC1iNDUyLTg1OTgwMjI3NTg3NiJ9.eyJ1cmwiOiJiYWNrZ3JvdW5kL291dHB1dDEubXAzIiwiaWF0IjoxNzQ4MjUwNTQ2LCJleHAiOjE3NDg4NTUzNDZ9.yhsvBLIfpwAs6S5bGP1BFVek7DQ0XfcsOlLTZibad3w")
 
 def transcribe_audio(audio_path):
     """Transcribe audio file and store segments in Redis."""
@@ -73,8 +71,6 @@ def transcribe_audio(audio_path):
     except Exception as e:
         print(f"Error during transcription: {e}")
         raise
-
-
 
 def format_timestamp(seconds):
     """
@@ -109,13 +105,13 @@ def overlay_subtitles_styled(video_path, output_path="styled_output.mp4", font_f
                 txt_clip = TextClip(
                     text=line,
                     font=font_file,
-                    font_size=40,
+                    font_size=35,
                     color='white',
                     stroke_color='black',
-                    stroke_width=3,
+                    stroke_width=5,
                     method='caption',
                     size=(clip.w, None)  # Set width to match the video width; height will be auto-calculated
-                ).with_position(('center', clip.h - 180 - (total_lines - i - 1) * 70)) \
+                ).with_position(('center', clip.h - (clip.h*0.5) - (total_lines - i - 1) * 50)) \
                 .with_start(start).with_duration(end - start)                
                 text_clips.append(txt_clip)
 
@@ -138,20 +134,14 @@ def parse_srt_time(srt_time):
     s, ms = rest.split(",")
     return int(h)*3600 + int(m)*60 + int(s) + int(ms)/1000.0
 
+def pipeline(video_url, audio_url, output_video_path="output.mp4", font_path="font.ttf"):
+    audio_path = download_to_temp(audio_url)
 
-overlay_subtitles_styled("merged_output.mp4", "styled_output.mp4", "font.ttf")
-# if __name__ == "__main__":
-#     try:
-#         # Step 1: Download audio to temp file
-#         temp_audio_path = download_to_temp()
-#         print(f"Downloaded audio to: {temp_audio_path}")
+    merged_video_path = "temp_merged_video.mp4"
+    merge_audio_video(video_url, audio_url, merged_video_path)
 
-#         # Step 2: Transcribe the downloaded audio
-#         transcribe_audio(temp_audio_path)
+    transcribe_audio(audio_path)
 
-#         # (Optional) Cleanup temp file after transcription
-#         os.remove(temp_audio_path)
-#         print(f"Temporary file {temp_audio_path} removed.")
-
-#     except Exception as e:
-#         print(f"Process failed: {e}")
+    overlay_subtitles_styled(merged_video_path, output_path=output_video_path, font_file=font_path)
+    os.remove(merged_video_path)
+pipeline("https://upiovzpgwwdzgqofnyvp.supabase.co/storage/v1/object/sign/background/output_2.mp4?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2RiOTY3YWFiLTM1ZDUtNGIxNC1iNDUyLTg1OTgwMjI3NTg3NiJ9.eyJ1cmwiOiJiYWNrZ3JvdW5kL291dHB1dF8yLm1wNCIsImlhdCI6MTc0ODI2NDkwMSwiZXhwIjoxNzQ4ODY5NzAxfQ.CNoGHAuGdWPc2wlHMxCtfrKSIDKkCSbJ5bEofzTcj2E","https://upiovzpgwwdzgqofnyvp.supabase.co/storage/v1/object/sign/background/output1.mp3?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2RiOTY3YWFiLTM1ZDUtNGIxNC1iNDUyLTg1OTgwMjI3NTg3NiJ9.eyJ1cmwiOiJiYWNrZ3JvdW5kL291dHB1dDEubXAzIiwiaWF0IjoxNzQ4MjY0OTE3LCJleHAiOjE3NDg4Njk3MTd9.c7w78KREuOx__hJFmD8zCYUOHDzsz5rirwgpMAGChUM")
