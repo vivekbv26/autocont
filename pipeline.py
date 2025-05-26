@@ -4,7 +4,7 @@ from summarise_feed import give_text
 from utils import get_env_var
 import random
 from add_audio import pipeline
-
+from upload_video import upload_video
 
 
 print("Generating speech...")
@@ -23,3 +23,8 @@ video_link = (
     ))
 print(video_link)
 pipeline(video_link,audio_link["signedURL"], output_video_path="output/output.mp4", font_path="font.ttf")
+upload_video(
+    file_path="output/output.mp4",
+    title="You won't believe what just happened!",
+    description="Stay updated with the latest news in just 30 seconds!",
+)

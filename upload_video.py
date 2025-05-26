@@ -57,12 +57,3 @@ def upload_video(file_path, title, description, tags=None):
     response = upload_request.execute()
     print(f"[✅] Video uploaded successfully: https://youtube.com/watch?v={response['id']}")
 
-if __name__ == "__main__":
-    if not os.path.exists(VIDEO_FILE):
-        print(f"[❌] Video file not found: {VIDEO_FILE}")
-    else:
-        upload_video(
-            file_path=VIDEO_FILE,
-            title="Auto-uploaded YouTube Short",
-            description="Generated and uploaded automatically. #shorts"
-        )
