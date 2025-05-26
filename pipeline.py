@@ -22,4 +22,4 @@ video_link = (
     f"output_{random_number}.mp4", 
     ))
 print(video_link)
-pipeline(video_link,audio_link["signedURL"], output_video_path="output.mp4", font_path="font.ttf")
+pipeline(video_link,audio_link["signedURL"], output_video_path="output/output.mp4", font_path="font.ttf")
