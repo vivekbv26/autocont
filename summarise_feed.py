@@ -4,7 +4,16 @@ from langchain.chat_models import init_chat_model
 from langchain_core.prompts import ChatPromptTemplate
 from supabase import create_client, Client
 import json
+import redis
+REDIS_CONFIG = {
+    "host": "redis-13357.c92.us-east-1-3.ec2.redns.redis-cloud.com",
+    "port": 13357,
+    "decode_responses": True,
+    "username": "default",
+    "password": "MaMdTtfUFDj2vtOMjwD4IK3F2lae4oUP",
+}
 
+r= redis.Redis(**REDIS_CONFIG)
 
 
 def give_text():
@@ -15,14 +24,10 @@ def give_text():
 
     response=(supabase.table("curr").select("*").execute())
 
-    currnews=(supabase.table("storeart").select("url").eq("num", response.data[0]["num"]).execute())
-
-    response = (
-        supabase.table("curr")
-        .update({"num": response.data[0]["num"] + 1})
-        .eq("num", response.data[0]["num"])
-        .execute()
-    )
+    currnews=(supabase.table("storeart").select("url").eq("num", (r.get("num"))).execute())
+    print(r.get("num"))
+    r.set("num", int(r.get("num")) + 1)
+    print(r.get("num"))
     urlsum= "https://prod.api.market/api/v1/pipfeed/parse/extract"
 
     payload =json.dumps({"url": currnews.data[0]["url"]})

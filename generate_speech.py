@@ -5,9 +5,6 @@ from elevenlabs import play
 from summarise_feed import give_text
 from supabase import create_client, Client
 
-url=get_env_var("SUPABASE_URL")
-key=get_env_var("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
 
 def generate_speech(text, voice_id,output_path="output/output1.mp3"):
     url=get_env_var("SUPABASE_URL")
@@ -41,7 +38,7 @@ def generate_speech(text, voice_id,output_path="output/output1.mp3"):
         600
     )
 )
-    print(response)
+    return response
 def main():
     generate_speech(text=give_text(), voice_id="JBFqnCBsd6RMkjVDRZzb")
 if __name__ == "__main__":
