@@ -5,6 +5,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from supabase import create_client, Client
 import json
 import redis
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 REDIS_CONFIG = {
     "host": "redis-13357.c92.us-east-1-3.ec2.redns.redis-cloud.com",
     "port": 13357,
@@ -44,7 +46,9 @@ def give_text():
 
 
 
-    model = init_chat_model("gemini-2.0-flash", model_provider="google_genai")
+    model = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash",  # safest and fastest
+    google_api_key=get_env_var("GOOGLE_API_KEY"))
 
 
     # News anchor-style system prompt
@@ -66,5 +70,5 @@ def give_text():
 
     messages = prompt_template.format_messages() 
     response = model.invoke(messages)            
-
+    print(response.content)
     return response.content
