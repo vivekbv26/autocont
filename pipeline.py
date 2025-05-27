@@ -8,7 +8,7 @@ from upload_video import upload_video
 
 def execute(text=give_text(), 
             voice_id="JBFqnCBsd6RMkjVDRZzb",
-            font_path="fonts\font.ttf",
+            font_path="fonts/font.ttf",
             title="You won't believe what just happened!",
             description="Stay updated with the latest news in just 30 seconds!"):
     print("Generating speech...")
