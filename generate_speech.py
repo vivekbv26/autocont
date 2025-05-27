@@ -18,7 +18,7 @@ def generate_speech(text, voice_id,output_path="output/output1.mp3"):
         voice_id=voice_id,
         output_format="mp3_44100_128",
         text=text,
-        model_id="eleven_multilingual_v2"
+        model_id="eleven_turbo_v2_5"
     )
     audio_bytes = b"".join(audio)
     # play(audio_bytes)
@@ -43,3 +43,7 @@ def main():
     generate_speech(text=give_text(), voice_id="JBFqnCBsd6RMkjVDRZzb")
 if __name__ == "__main__":
     main()
+
+    # N2lVS1w4EtoT3dr4eOWO
+
+    # ThT5KcBeYPX3keUQqHPh dorothy
