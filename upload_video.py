@@ -38,7 +38,7 @@ def upload_video(file_path, title, description, tags=None):
         "snippet": {
             "title": title,
             "description": description,
-            "tags": tags or ["cybercrime", "conspiracy", "unsolved mystery", "cult",
+            "tags": ["cybercrime", "conspiracy", "unsolved mystery", "cult",
     "espionage", "paranormal", "forbidden", "secret society", "ritual",
     "black market", "scandal", "hidden truth", "classified", "covert operation",
     "did you know", "bizarre", "unbelievable", "shocking", "unexplained"],

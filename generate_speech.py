@@ -4,27 +4,15 @@ from elevenlabs.client import ElevenLabs
 from elevenlabs import play
 from summarise_feed import give_text
 from supabase import create_client, Client
-
+from speech.elevenlabs import use_elevenslabs
+from speech.polly import use_polly
 
 def generate_speech(text, voice_id,output_path="output/output1.mp3"):
     url=get_env_var("SUPABASE_URL")
     key=get_env_var("SUPABASE_KEY")
     supabase: Client = create_client(url, key)
-    ELEVENLABS_API_KEY = get_env_var("ELEVENLABS_API_KEY")
-    client = ElevenLabs(
-    api_key=ELEVENLABS_API_KEY,
-    )        
-    audio=client.text_to_speech.convert(
-        voice_id=voice_id,
-        output_format="mp3_44100_128",
-        text=text,
-        model_id="eleven_turbo_v2_5"
-    )
-    audio_bytes = b"".join(audio)
-    # play(audio_bytes)
-
-    # with open(output_path, "wb") as f:
-    #     f.write(audio_bytes)
+    
+    audio_bytes = use_polly(text)
     supabase.storage.from_("audio").upload(file=audio_bytes, path="output.mp3",file_options={
             "content-type": "audio/mpeg",
             "cache-control": "3600",
