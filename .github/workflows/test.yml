@@ -3,7 +3,6 @@ name: Content Automation Pipeline
 on:
   schedule:
     - cron: '0 * * * *'  # Every hour
-    - cron: '0 9,15,21 * * *'  # Peak times: 9 AM, 3 PM, 9 PM UTC
   workflow_dispatch:
     inputs:
       force_run:
