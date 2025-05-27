@@ -27,11 +27,3 @@ def generate_speech(text, voice_id,output_path="output/output1.mp3"):
     )
 )
     return response
-def main():
-    generate_speech(text=give_text(), voice_id="JBFqnCBsd6RMkjVDRZzb")
-if __name__ == "__main__":
-    main()
-
-    # N2lVS1w4EtoT3dr4eOWO
-
-    # ThT5KcBeYPX3keUQqHPh dorothy
