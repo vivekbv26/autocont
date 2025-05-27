@@ -16,32 +16,77 @@ REDIS_CONFIG = {
     "password": "MaMdTtfUFDj2vtOMjwD4IK3F2lae4oUP",
 }
 REDIS_KEY = "seg"
-def download_to_temp(url):
-    response = requests.get(url)
-    response.raise_for_status()
 
-    ext = '.mp3'
+def download_to_temp(url, extension=None):
+    """Download file from URL to temporary file."""
+    try:
+        print(f"Downloading: {url}")
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp_file:
-        tmp_file.write(response.content)
-        return tmp_file.name
+        # Determine extension from URL or use provided extension
+        if not extension:
+            if 'mp3' in url.lower():
+                extension = '.mp3'
+            elif 'mp4' in url.lower():
+                extension = '.mp4'
+            else:
+                extension = '.tmp'
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=extension) as tmp_file:
+            tmp_file.write(response.content)
+            print(f"Downloaded to: {tmp_file.name}")
+            return tmp_file.name
+            
+    except Exception as e:
+        print(f"Error downloading {url}: {e}")
+        raise
 
 def merge_audio_video(video_path, audio_path, output_path="merged_output.mp4"):
     """
     Merges the input video and audio files into a single video file.
+    Both video_path and audio_path should be local file paths, not URLs.
     """
-    command = [
-        'ffmpeg',
-        '-i', video_path,
-        '-i', audio_path,
-        '-c:v', 'copy',
-        '-c:a', 'aac',
-        '-map', '0:v:0',
-        '-map', '1:a:0',
-        '-shortest',
-        output_path
-    ]
-    subprocess.run(command, check=True)
+    try:
+        print(f"Merging video: {video_path}")
+        print(f"Merging audio: {audio_path}")
+        print(f"Output: {output_path}")
+        
+        # Verify input files exist
+        if not os.path.exists(video_path):
+            raise FileNotFoundError(f"Video file not found: {video_path}")
+        if not os.path.exists(audio_path):
+            raise FileNotFoundError(f"Audio file not found: {audio_path}")
+        
+        command = [
+            'ffmpeg',
+            '-y',  # Overwrite output file if it exists
+            '-i', video_path,
+            '-i', audio_path,
+            '-c:v', 'copy',
+            '-c:a', 'aac',
+            '-map', '0:v:0',
+            '-map', '1:a:0',
+            '-shortest',
+            output_path
+        ]
+        
+        print(f"Running command: {' '.join(command)}")
+        result = subprocess.run(command, check=True, capture_output=True, text=True)
+        print("Merge completed successfully!")
+        
+    except subprocess.CalledProcessError as e:
+        print(f"FFmpeg error: {e}")
+        print(f"Command: {' '.join(e.cmd)}")
+        print(f"Return code: {e.returncode}")
+        if e.stdout:
+            print(f"Stdout: {e.stdout}")
+        if e.stderr:
+            print(f"Stderr: {e.stderr}")
+        raise
+    except Exception as e:
+        print(f"Unexpected error in merge_audio_video: {e}")
+        raise
 
 def transcribe_audio(audio_path):
     """Transcribe audio file and store segments in Redis."""
@@ -134,13 +179,49 @@ def parse_srt_time(srt_time):
     s, ms = rest.split(",")
     return int(h)*3600 + int(m)*60 + int(s) + int(ms)/1000.0
 
+def cleanup_temp_files(*file_paths):
+    """Clean up temporary files."""
+    for file_path in file_paths:
+        try:
+            if file_path and os.path.exists(file_path):
+                os.remove(file_path)
+                print(f"Cleaned up: {file_path}")
+        except Exception as e:
+            print(f"Warning: Could not remove {file_path}: {e}")
+
 def pipeline(video_url, audio_url, output_video_path="output.mp4", font_path="font.ttf"):
-    audio_path = download_to_temp(audio_url)
-
+    """
+    Main pipeline function that downloads URLs to local files before processing.
+    """
+    video_temp_path = None
+    audio_temp_path = None
     merged_video_path = "temp_merged_video.mp4"
-    merge_audio_video(video_url, audio_url, merged_video_path)
-
-    transcribe_audio(audio_path)
-
-    overlay_subtitles_styled(merged_video_path, output_path=output_video_path, font_file=font_path)
-    os.remove(merged_video_path)
+    
+    try:
+        # Download both video and audio to local temporary files
+        print("Downloading video and audio files...")
+        video_temp_path = download_to_temp(video_url, '.mp4')
+        audio_temp_path = download_to_temp(audio_url, '.mp3')
+        
+        # Merge video and audio using local file paths
+        merge_audio_video(video_temp_path, audio_temp_path, merged_video_path)
+        
+        # Transcribe audio
+        transcribe_audio(audio_temp_path)
+        
+        # Create output directory if it doesn't exist
+        output_dir = os.path.dirname(output_video_path)
+        if output_dir and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
+        # Add subtitles
+        overlay_subtitles_styled(merged_video_path, output_path=output_video_path, font_file=font_path)
+        
+        print(f"Pipeline completed successfully! Output: {output_video_path}")
+        
+    except Exception as e:
+        print(f"Pipeline failed: {e}")
+        raise
+    finally:
+        # Clean up temporary files
+        cleanup_temp_files(video_temp_path, audio_temp_path, merged_video_path)
