@@ -33,7 +33,7 @@ def execute(text=give_text(),
 
     pipeline(video_link,audio_link["signedURL"], output_video_path="output/output.mp4", font_path=font_path)
     supabase.storage.from_("audio").upload(file="output/output.mp4", path="testdeploy.mp3",file_options={
-            "content-type": "audio/mpeg",
+            "content-type": "video/mp4",
             "cache-control": "3600",
             "upsert": "true"
         })
