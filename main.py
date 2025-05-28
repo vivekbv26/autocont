@@ -22,4 +22,4 @@ def generate_minefraft():
         return jsonify({"status": "error", "message": str(e)}), 500
     
 if __name__ == '__main__':
-    app.run(debug=True,PORT=5001)
+    app.run(debug=True)
