@@ -127,7 +127,7 @@ def format_timestamp(seconds):
     milliseconds = int((seconds - int(seconds)) * 1000)
     return f"{hours:02}:{minutes:02}:{secs:02},{milliseconds:03}"
 
-def overlay_subtitles_styled(video_path, output_path="styled_output.mp4", font_file="font.ttf"):
+def overlay_subtitles_styled(video_path, output_path="styled_output.mp4", font_file="fonts/font.ttf"):
     # Load video
     clip = VideoFileClip(video_path)
     # Connect to Redis and get segments
@@ -189,7 +189,7 @@ def cleanup_temp_files(*file_paths):
         except Exception as e:
             print(f"Warning: Could not remove {file_path}: {e}")
 
-def pipeline(video_url, audio_url, output_video_path="output.mp4", font_path="font.ttf"):
+def pipeline(video_url, audio_url, output_video_path="output.mp4", font_path="fonts/font.ttf"):
     """
     Main pipeline function that downloads URLs to local files before processing.
     """

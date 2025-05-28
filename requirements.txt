@@ -34,3 +34,6 @@ langchain-google-genai
 Pillow
 numpy
 ffmpeg-python
+
+#amazon
+boto3
