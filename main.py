@@ -4,7 +4,7 @@ from summarise_feed import give_text
 
 app= flask.Flask(__name__)
 
-@app.route('/generate-minefraft', methods=['POST'])
+@app.route('/generate-minecraft', methods=['POST'])
 def generate_minefraft():
     from pipeline import execute
     try:
